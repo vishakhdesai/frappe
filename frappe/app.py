@@ -97,6 +97,14 @@ def application(request: Request):
 	except HTTPException as e:
 		return e
 
+	except frappe.exceptions.DoesNotExistError as e:
+		has_doctype_access_permission = getattr(frappe.local, "has_doctype_access_permission", True)
+
+		if not has_doctype_access_permission:
+			frappe.local.response.exc_type = "PermissionError"
+
+		response = handle_exception(e)
+
 	except Exception as e:
 		response = handle_exception(e)
 

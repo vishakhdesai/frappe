@@ -170,6 +170,8 @@ class Document(BaseDocument):
 			)
 
 			if not d:
+				if frappe.request:
+					frappe.local.has_doctype_access_permission = frappe.has_permission(self.doctype)
 				frappe.throw(
 					_("{0} {1} not found").format(_(self.doctype), self.name), frappe.DoesNotExistError
 				)

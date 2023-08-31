@@ -40,6 +40,9 @@ def report_error(status_code):
 			frappe.errprint(traceback)
 			frappe.local.response.exception = traceback.splitlines()[-1]
 
+	if frappe.local.response.exc_type == "PermissionError":
+		frappe.local.response.exception = "frappe.exceptions.PermissionError: Not Permitted"
+
 	response = build_response("json")
 	response.status_code = status_code
 	return response
@@ -137,6 +140,13 @@ def make_logs(response=None):
 
 	if not response:
 		response = frappe.local.response
+
+	is_permission_error = ("PermissionError" in response.get("exc_type", "")) or (
+		"PermissionError" in response.get("exception", "")
+	)
+
+	if is_permission_error:
+		return
 
 	if frappe.error_log:
 		if source := guess_exception_source(frappe.local.error_log and frappe.local.error_log[0]["exc"]):
